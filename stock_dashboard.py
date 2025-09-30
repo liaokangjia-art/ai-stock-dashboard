@@ -124,7 +124,7 @@ class StockAnalyzer:
         
         return df
     
-    def train_prediction_model(self, data):
+    def train_prediction_model(self, data, selected_features=[]):
         """Train ML model for price prediction"""
         df = self.prepare_ml_features(data)
         df = df.dropna()
@@ -139,7 +139,9 @@ class StockAnalyzer:
         feature_cols = [col for col in feature_cols if 'lag' in col or 'mean' in col or 
                        'std' in col or col in ['RSI', 'MACD', 'Price_vs_SMA20', 'Price_vs_SMA50', 
                                               'Price_volatility_10d', 'Price_volatility_20d', 'ATR']]
-        
+        # Selected features
+        if len(selected_features) > 0:
+            feature_cols = selected_features
         if len(feature_cols) < 5:
             return None
         
@@ -610,9 +612,9 @@ def main():
         create_performance_metrics(data, symbol)
     
     # ML Prediction
+    st.subheader("🔮 Machine Learning Price Prediction")
     if show_prediction:
         if st.button("Train and Predict"):
-            st.subheader("🔮 Machine Learning Price Prediction")
             
             col1, col2 = st.columns([1, 1])
             
