@@ -151,7 +151,7 @@ class StockAnalyzer:
         else:
             feature_cols = self.get_available_features(data)
             
-        if len(feature_cols) < 5:
+        if len(feature_cols) < 3:
             return None
         
         X = df[feature_cols].fillna(method='ffill').fillna(method='bfill')
