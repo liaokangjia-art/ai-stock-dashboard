@@ -623,18 +623,26 @@ def main():
     # ML Prediction
     st.subheader("🔮 Machine Learning Price Prediction")
     if show_prediction:
+        # Feature selection
+        available_features = analyzer.get_available_features(data)
+        # Initialize session state for selected features if not already done
+        if 'selected_features' not in st.session_state:
+            st.session_state.selected_features = analyzer.get_available_features(data)
+        selected_features = st.multiselect("Select Features for Training Model", 
+                                           options=available_features, 
+                                           default=st.session_state.selected_features,
+                                           key = "feature_selection")
+        # Update session state when the selection changes
+        if selected_features != st.session_state.selected_features:
+            st.session_state.selected_features = selected_features
+            
         if st.button("Train and Predict"):
-            # Feature selection
-            available_features = analyzer.get_available_features(data)
-            selected_features = st.multiselect("Select Features for Training Model", 
-                                               options=available_features, 
-                                               default=available_features)
             
             col1, col2 = st.columns([1, 1])
             
             with col1:
                 with st.spinner("🤖 Training AI prediction model..."):
-                    model_info = analyzer.train_prediction_model(data, selected_features)
+                    model_info = analyzer.train_prediction_model(data, st.session_state.selected_features)
                 
                 if model_info:
                     prediction = analyzer.predict_next_price(model_info)
