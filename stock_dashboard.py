@@ -611,62 +611,63 @@ def main():
     
     # ML Prediction
     if show_prediction:
-        st.subheader("🔮 Machine Learning Price Prediction")
-        
-        col1, col2 = st.columns([1, 1])
-        
-        with col1:
-            with st.spinner("🤖 Training AI prediction model..."):
-                model_info = analyzer.train_prediction_model(data)
+        if st.button("Train and Predict"):
+            st.subheader("🔮 Machine Learning Price Prediction")
             
-            if model_info:
-                prediction = analyzer.predict_next_price(model_info)
-                current_price = data['Close'].iloc[-1]
-                predicted_change = ((prediction - current_price) / current_price) * 100
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                with st.spinner("🤖 Training AI prediction model..."):
+                    model_info = analyzer.train_prediction_model(data)
                 
-                st.success("✅ Model trained successfully!")
-                
-                pred_col1, pred_col2 = st.columns(2)
-                with pred_col1:
-                    st.metric(
-                        label="🎯 Next Day Prediction",
-                        value=f"${prediction:.2f}",
-                        delta=f"{predicted_change:+.2f}%"
+                if model_info:
+                    prediction = analyzer.predict_next_price(model_info)
+                    current_price = data['Close'].iloc[-1]
+                    predicted_change = ((prediction - current_price) / current_price) * 100
+                    
+                    st.success("✅ Model trained successfully!")
+                    
+                    pred_col1, pred_col2 = st.columns(2)
+                    with pred_col1:
+                        st.metric(
+                            label="🎯 Next Day Prediction",
+                            value=f"${prediction:.2f}",
+                            delta=f"{predicted_change:+.2f}%"
+                        )
+                    
+                    with pred_col2:
+                        confidence = model_info['test_score']
+                        confidence_level = "High" if confidence > 0.8 else "Medium" if confidence > 0.6 else "Low"
+                        st.metric(
+                            label="🎲 Model Confidence",
+                            value=f"{confidence:.1%}",
+                            delta=confidence_level
+                        )
+                    
+                    # Model performance
+                    st.info(f"📈 **Training Accuracy:** {model_info['train_score']:.1%} | **Test Accuracy:** {model_info['test_score']:.1%}")
+                else:
+                    st.warning("⚠️ Insufficient data for reliable ML prediction. Need more historical data.")
+            
+            with col2:
+                if model_info:
+                    # Feature importance
+                    importance_df = pd.DataFrame(
+                        list(model_info['feature_importance'].items()),
+                        columns=['Feature', 'Importance']
+                    ).sort_values('Importance', ascending=False).head(10)
+                    
+                    fig_importance = px.bar(
+                        importance_df, 
+                        x='Importance', 
+                        y='Feature',
+                        orientation='h',
+                        title="🔍 Top 10 Most Important Features",
+                        template='plotly_dark'
                     )
-                
-                with pred_col2:
-                    confidence = model_info['test_score']
-                    confidence_level = "High" if confidence > 0.8 else "Medium" if confidence > 0.6 else "Low"
-                    st.metric(
-                        label="🎲 Model Confidence",
-                        value=f"{confidence:.1%}",
-                        delta=confidence_level
-                    )
-                
-                # Model performance
-                st.info(f"📈 **Training Accuracy:** {model_info['train_score']:.1%} | **Test Accuracy:** {model_info['test_score']:.1%}")
-            else:
-                st.warning("⚠️ Insufficient data for reliable ML prediction. Need more historical data.")
+                    fig_importance.update_layout(height=400)
+                    st.plotly_chart(fig_importance, use_container_width=True)
         
-        with col2:
-            if model_info:
-                # Feature importance
-                importance_df = pd.DataFrame(
-                    list(model_info['feature_importance'].items()),
-                    columns=['Feature', 'Importance']
-                ).sort_values('Importance', ascending=False).head(10)
-                
-                fig_importance = px.bar(
-                    importance_df, 
-                    x='Importance', 
-                    y='Feature',
-                    orientation='h',
-                    title="🔍 Top 10 Most Important Features",
-                    template='plotly_dark'
-                )
-                fig_importance.update_layout(height=400)
-                st.plotly_chart(fig_importance, use_container_width=True)
-    
     # AI Market Analysis
     if show_analysis:
         st.subheader("🧠 AI-Powered Market Analysis")
