@@ -123,6 +123,16 @@ class StockAnalyzer:
         df['Price_volatility_20d'] = df['Returns'].rolling(20).std()
         
         return df
+
+    def get_available_features(self, data):
+        # Features for prediction (excluding target-related columns)
+        exclude_cols = ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits', 
+                       'Returns', 'Returns_5d', 'Returns_10d']
+        feature_cols = [col for col in df.columns if not any(exc in col for exc in exclude_cols)]
+        feature_cols = [col for col in feature_cols if 'lag' in col or 'mean' in col or 
+                       'std' in col or col in ['RSI', 'MACD', 'Price_vs_SMA20', 'Price_vs_SMA50', 
+                                              'Price_volatility_10d', 'Price_volatility_20d', 'ATR']]
+        return feature_cols
     
     def train_prediction_model(self, data, selected_features=[]):
         """Train ML model for price prediction"""
@@ -131,17 +141,14 @@ class StockAnalyzer:
         
         if len(df) < 100:  # Need minimum data
             return None
-        
-        # Features for prediction (excluding target-related columns)
-        exclude_cols = ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits', 
-                       'Returns', 'Returns_5d', 'Returns_10d']
-        feature_cols = [col for col in df.columns if not any(exc in col for exc in exclude_cols)]
-        feature_cols = [col for col in feature_cols if 'lag' in col or 'mean' in col or 
-                       'std' in col or col in ['RSI', 'MACD', 'Price_vs_SMA20', 'Price_vs_SMA50', 
-                                              'Price_volatility_10d', 'Price_volatility_20d', 'ATR']]
+
         # Selected features
+        feature_cols = []
         if len(selected_features) > 0:
             feature_cols = selected_features
+        else:
+            feature_cols = self.get_available_features(data)
+            
         if len(feature_cols) < 5:
             return None
         
@@ -615,12 +622,17 @@ def main():
     st.subheader("🔮 Machine Learning Price Prediction")
     if show_prediction:
         if st.button("Train and Predict"):
+            # Feature selection
+            available_features = analyzer.get_available_features(data)
+            selected_features = st.multiselect("Select Features for Training Model", 
+                                               options=available_features, 
+                                               default=available_features)
             
             col1, col2 = st.columns([1, 1])
             
             with col1:
                 with st.spinner("🤖 Training AI prediction model..."):
-                    model_info = analyzer.train_prediction_model(data)
+                    model_info = analyzer.train_prediction_model(data, selected_features)
                 
                 if model_info:
                     prediction = analyzer.predict_next_price(model_info)
