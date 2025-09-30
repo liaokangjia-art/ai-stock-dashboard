@@ -125,6 +125,8 @@ class StockAnalyzer:
         return df
 
     def get_available_features(self, data):
+        df = self.prepare_ml_features(data)
+        df = df.dropna()
         # Features for prediction (excluding target-related columns)
         exclude_cols = ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits', 
                        'Returns', 'Returns_5d', 'Returns_10d']
