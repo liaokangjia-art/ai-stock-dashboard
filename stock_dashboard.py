@@ -543,12 +543,13 @@ def main():
             st.sidebar.write(f"{i}. {sub_stock}")
     
     # Reset Button
-    if st.sidebar.button("🗑️ Reset Sub-Stocks"):
-        st.session_state.sub_stocks = []
+    reset_button_pressed = st.sidebar.button("🗑️ Reset Sub-Stocks")
+    if reset_button_pressed:
+        st.session_state.sub_stocks.clear()
+        # Inform user with feedback
         st.sidebar.success("Sub-stocks list cleared.")
-    
-    # Divider
-    st.sidebar.markdown("---")
+        # Divider
+        st.sidebar.markdown("---")
         
     # Time period
     period = st.sidebar.selectbox(
