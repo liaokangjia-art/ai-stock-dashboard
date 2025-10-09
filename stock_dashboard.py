@@ -598,6 +598,9 @@ def main():
     # Calculate technical indicators
     with st.spinner("⚙️ Calculating technical indicators..."):
         data = analyzer.calculate_technical_indicators(data)
+
+    for subst in sub_stock_data_info_dic.keys():
+        sub_stock_data_info_dic[subst][0] = analyzer.calculate_technical_indicators(sub_stock_data_info_dic[subst][0])
     
     # Main dashboard header
     st.markdown("---")
