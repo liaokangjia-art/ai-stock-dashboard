@@ -494,7 +494,7 @@ def main():
     
     stock_choice = st.sidebar.selectbox(
         "🏢 Select Stock:",
-        options=list(popular_stocks.keys()) + ['Custom'],
+        options=['Custom'] + list(popular_stocks.keys()),
         index=1
     )
     
