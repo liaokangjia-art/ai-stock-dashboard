@@ -495,7 +495,7 @@ def main():
     stock_choice = st.sidebar.selectbox(
         "🏢 Select Stock:",
         options=['Custom'] + list(popular_stocks.keys()),
-        index=2
+        index=0
     )
     
     if stock_choice == 'Custom':
