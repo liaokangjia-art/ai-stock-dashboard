@@ -502,7 +502,54 @@ def main():
         symbol = st.sidebar.text_input("Enter Stock Symbol:", value="AAPL", max_chars=10).upper()
     else:
         symbol = popular_stocks[stock_choice]
+    # Display Selected Stock
+    st.sidebar.write(f"**Selected Stock:** {symbol}")
     
+    # Divider
+    st.sidebar.markdown("---")
+    
+    # Sub-Stocks Section
+    st.sidebar.subheader("📈 Add Related Sub-Stocks")
+    st.sidebar.markdown(
+        "Enter additional stock symbols that are related to the main stock for feature extraction."
+    )
+    
+    # Initialize list for sub-stocks in Session State
+    if "sub_stocks" not in st.session_state:
+        st.session_state.sub_stocks = []
+    
+    # Sub-stock Input Field
+    sub_stock_symbol = st.sidebar.text_input(
+        "Add Sub-Stock Symbol:",
+        value="",
+        max_chars=10,
+        placeholder="Enter stock symbol (e.g., MSFT)"
+    ).upper()
+    
+    # Add Button Functionality
+    if st.sidebar.button("➕ Add Sub-Stock"):
+        if sub_stock_symbol != "":
+            if sub_stock_symbol not in st.session_state.sub_stocks:
+                st.session_state.sub_stocks.append(sub_stock_symbol)
+            else:
+                st.sidebar.warning(f"{sub_stock_symbol} is already added.")
+        else:
+            st.sidebar.error("Please enter a valid stock symbol.")
+    
+    # Display Sub-Stocks
+    if st.session_state.sub_stocks:
+        st.sidebar.markdown("### Current Sub-Stocks:")
+        for i, sub_stock in enumerate(st.session_state.sub_stocks, 1):
+            st.sidebar.write(f"{i}. {sub_stock}")
+    
+    # Reset Button
+    if st.sidebar.button("🗑️ Reset Sub-Stocks"):
+        st.session_state.sub_stocks = []
+        st.sidebar.success("Sub-stocks list cleared.")
+    
+    # Divider
+    st.sidebar.markdown("---")
+        
     # Time period
     period = st.sidebar.selectbox(
         "📅 Analysis Period:",
