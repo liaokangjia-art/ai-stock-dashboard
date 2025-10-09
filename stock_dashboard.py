@@ -584,6 +584,16 @@ def main():
         st.error(f"❌ Could not fetch data for {symbol}. Please verify the symbol and try again.")
         st.info("💡 Try popular symbols like AAPL, MSFT, GOOGL, TSLA, etc.")
         return
+
+    sub_stock_data_info_dic = {}
+    for subst in st.session_state.sub_stocks:
+        with st.spinner(f"📡 Fetching live data for {symbol}..."):
+            tmp_data, tmp_info = analyzer.fetch_stock_data(subst, period)
+        if tmp_data is None or tmp_data.empty:
+            st.error(f"❌ Could not fetch data for {subst}. Please verify the symbol and try again.")
+            st.info("💡 Try popular symbols like AAPL, MSFT, GOOGL, TSLA, etc.")
+            return
+        sub_stock_data_info_dic[subst] = [tmp_data, tmp_info]
     
     # Calculate technical indicators
     with st.spinner("⚙️ Calculating technical indicators..."):
